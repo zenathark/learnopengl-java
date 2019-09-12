@@ -97,17 +97,17 @@ public class HelloTriangle {
         final var vertices = new float[] { -0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f, 0.0f, 0.5f, 0.0f };
 
         final var VAO = glGenVertexArrays();
-        glBindVertexArray(VAO);
-
         final var VBO = glGenBuffers();
+        glBindVertexArray(VAO);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
 
-        glVertexAttribPointer(VAO, 3, GL_FLOAT, false, 32, 0);
-        glEnableVertexAttribArray(VAO);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBindVertexArray(VAO);
-
+        glVertexAttribPointer(0, 3, GL_FLOAT, false, 12, 0);
+        glEnableVertexAttribArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+        System.out.println(VAO);
+        System.out.println(VBO);
         while (!glfwWindowShouldClose(window)) {
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
