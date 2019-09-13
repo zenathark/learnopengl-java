@@ -16,7 +16,8 @@ plugins {
     id 'groovy'
 }
 
-import org.gradle.internal.os.OperatingSystem
+
+import static org.apache.tools.ant.taskdefs.condition.Os.*
 
 repositories {
     // Use jcenter for resolving your dependencies.
@@ -60,13 +61,15 @@ dependencies {
 mainClassName = 'learnopengl.App'
 
 task(runHelloWindow, dependsOn: 'classes', type:JavaExec) {
-    jvmArgs '-XstartOnFirstThread'
+    if (isFamily(FAMILY_MAC)) 
+        jvmArgs '-XstartOnFirstThread'
     main = 'learnopengl.chap3.HelloWindow'
     classpath = sourceSets.main.runtimeClasspath
 }
 
 task(runHelloTriangle, dependsOn: 'classes', type:JavaExec) {
-    jvmArgs '-XstartOnFirstThread'
+    if (isFamily(FAMILY_MAC)) 
+        jvmArgs '-XstartOnFirstThread'
     main = 'learnopengl.chap3.HelloTriangle'
     classpath = sourceSets.main.runtimeClasspath
 }
