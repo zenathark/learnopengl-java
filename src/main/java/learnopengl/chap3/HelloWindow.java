@@ -10,6 +10,7 @@ import java.nio.*;
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
@@ -56,22 +57,22 @@ public class HelloWindow implements Runnable {
 
     @Override
     public void run() {
-        GL.createCapabilities();
         System.out.printf("Hello LWJGL %s", Version.getVersion());
         init();
+        GL.createCapabilities();
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         while (!glfwWindowShouldClose(window)) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glfwSwapBuffers(window);
             glfwPollEvents();
         }
-        glfwFreeCallbacks(w);
-        glfwDestroyWindow(w);
+        glfwFreeCallbacks(window);
+        glfwDestroyWindow(window);
         glfwTerminate();
         glfwSetErrorCallback(null).free();
     }
 
     public static void main(String[] args) {
-        run();
+        new HelloWindow().start();
     }
 }
