@@ -14,14 +14,8 @@ import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
-public class HelloWindow implements Runnable {
+public class HelloWindow {
     long window = 0;
-    private Thread thread;
-
-    public void start() {
-        thread = new Thread(this, "Game");
-        thread.start();
-    }
 
     public void init() {
         GLFWErrorCallback.createPrint(System.err).set();
@@ -55,17 +49,20 @@ public class HelloWindow implements Runnable {
         glfwShowWindow(window);
     }
 
-    @Override
-    public void run() {
-        System.out.printf("Hello LWJGL %s", Version.getVersion());
-        init();
-        GL.createCapabilities();
+    public void loop() {
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         while (!glfwWindowShouldClose(window)) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glfwSwapBuffers(window);
             glfwPollEvents();
         }
+    }
+
+    public void start() {
+        System.out.printf("Hello LWJGL %s", Version.getVersion());
+        init();
+        GL.createCapabilities(); // Makes main window the current context
+        loop();
         glfwFreeCallbacks(window);
         glfwDestroyWindow(window);
         glfwTerminate();

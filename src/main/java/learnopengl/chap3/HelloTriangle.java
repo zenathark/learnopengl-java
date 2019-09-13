@@ -27,6 +27,10 @@ public class HelloTriangle {
         glfwDefaultWindowHints();
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+        glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
         var window = glfwCreateWindow(300, 300, "Hello, World!", NULL, NULL);
         glfwSetKeyCallback(window, (w, key, scancode, action, mods) -> {

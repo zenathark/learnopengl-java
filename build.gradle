@@ -60,11 +60,13 @@ dependencies {
 mainClassName = 'learnopengl.App'
 
 task(runHelloWindow, dependsOn: 'classes', type:JavaExec) {
-    doFirst {
-        if(OperatingSystem.current().isMacOsX()) {
-            jvmArgs '-XstartOnFirstThread'
-        }
-    }
+    jvmArgs '-XstartOnFirstThread'
     main = 'learnopengl.chap3.HelloWindow'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+task(runHelloTriangle, dependsOn: 'classes', type:JavaExec) {
+    jvmArgs '-XstartOnFirstThread'
+    main = 'learnopengl.chap3.HelloTriangle'
     classpath = sourceSets.main.runtimeClasspath
 }
