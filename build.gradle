@@ -57,7 +57,7 @@ dependencies {
 // Define the main class for the application
 mainClassName = 'learnopengl.App'
 
-task execute(type: JavaExec) {
-    main = mainClass
+task(runSimple, dependsOn: 'classes', type:JavaExec) {
+    main = 'learnopengl.chap3.HelloWindow'
     classpath = sourceSets.main.runtimeClasspath
 }
