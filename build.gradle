@@ -73,3 +73,10 @@ task(runHelloTriangle, dependsOn: 'classes', type:JavaExec) {
     main = 'learnopengl.chap3.HelloTriangle'
     classpath = sourceSets.main.runtimeClasspath
 }
+
+task(runWindowGL, dependsOn: 'classes', type:JavaExec) {
+    if (isFamily(FAMILY_MAC)) 
+        jvmArgs '-XstartOnFirstThread'
+    main = 'oglib.App'
+    classpath = sourceSets.main.runtimeClasspath
+}
