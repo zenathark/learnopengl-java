@@ -38,14 +38,16 @@ public class App {
         try {
             var program = new Program("screen.vert", "screen.frag");
             var screen = new Simple2DBuffer(width, height);
-            for (int i = 0; i < width * height; i++) {
-                screen.set(i, 200, 200, 200);
+            var x = 255;
+            for (int i = 0; i < width; i++) {
+                screen.set(i, 200, x, x, x);
             }
             while (!w.windowShouldClose()) {
-                glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+                glClearColor(0f, 0f, 0f, 1.0f);
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                 program.use();
                 screen.draw();
+                w.swapBuffers();
                 w.pollEvents();
             }
             w.destroy();

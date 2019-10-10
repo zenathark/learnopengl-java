@@ -13,14 +13,14 @@ import static com.google.common.base.Preconditions.*;
 
 public class Simple2DBuffer {
 
-    final private static float[] vertices = new float[] {
+    private float[] vertices = new float[] {
             // positions // colors // texture coords
-            1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, // top right
-            1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // bottom right
-            -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom left
-            -1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f // top left
+            1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, // top right
+            1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, // bottom right
+            -1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, // bottom left
+            -1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f // top left
     };
-    final private static int[] indices = new int[] { 0, 1, 3, 1, 2, 3 };
+    private byte[] indices = new byte[] { 0, 1, 3, 1, 2, 3 };
 
     final private int vao;
     final private int vbo;
@@ -44,20 +44,25 @@ public class Simple2DBuffer {
         this.height = height;
         screen = new byte[this.width * this.height * 3];
         blankScreen = new byte[this.width * this.height * 3];
+
         vao = glGenVertexArrays();
-        vbo = glGenBuffers();
-        ebo = glGenBuffers();
-
         glBindVertexArray(vao);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, ebo);
-        glBufferData(GL_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
 
+        vbo = glGenBuffers();
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        var vboBuffer = ByteBuffer.allocateDirect(vertices.length << 2).order(ByteOrder.nativeOrder()).asFloatBuffer();
+        vboBuffer.put(vertices).flip();
+        glBufferData(GL_ARRAY_BUFFER, vboBuffer, GL_STATIC_DRAW);
         // Position Attribute
         // size = elements on a row (8) * float size (4)
         glVertexAttribPointer(posLocation, 3, GL_FLOAT, false, 8 * 4, 0);
         glEnableVertexAttribArray(posLocation);
+
+        ebo = glGenBuffers();
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+        var eboBuffer = ByteBuffer.allocateDirect(indices.length).order(ByteOrder.nativeOrder());
+        eboBuffer.put(indices).flip();
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, eboBuffer, GL_STATIC_DRAW);
 
         // Color Attribute
         // size = elements on a row (8) * float size (4)
@@ -69,7 +74,7 @@ public class Simple2DBuffer {
         // size = elements on a row (8) * float size (4)
         // offset = (position vertex elements (3) + color vertex elements (3)) * float
         // size (4)
-        glVertexAttribPointer(uvLocation, 2, GL_FLOAT, false, 8 * 4, (2 + 3) * 4);
+        glVertexAttribPointer(uvLocation, 2, GL_FLOAT, false, 8 * 4, (3 + 3) * 4);
         glEnableVertexAttribArray(uvLocation);
 
         textureId = glGenTextures();
@@ -80,8 +85,10 @@ public class Simple2DBuffer {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         screenBuffer = ByteBuffer.allocateDirect(this.width * this.height * 3).order(ByteOrder.nativeOrder());
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, screenBuffer);
-        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
     }
 
     public boolean isUpdated() {
@@ -120,9 +127,11 @@ public class Simple2DBuffer {
         checkArgument(green >= 0 && green <= 255, "Green channel must have values between 0 and 255");
         checkArgument(blue >= 0 && blue <= 255, "Blue channel must have values between 0 and 255");
 
-        screen[idx] = (byte) (0xFF & red);
-        screen[idx + 1] = (byte) (0xFF & green);
-        screen[idx + 2] = (byte) (0xFF & blue);
+        var realIdx = idx * 3;
+
+        screen[realIdx] = (byte) (0xFF & red);
+        screen[realIdx + 1] = (byte) (0xFF & green);
+        screen[realIdx + 2] = (byte) (0xFF & blue);
         updated = true;
     }
 
@@ -132,12 +141,15 @@ public class Simple2DBuffer {
     }
 
     public void draw() {
-        // glBindTexture(GL_TEXTURE_2D, textureId);
         glBindVertexArray(vao);
-        // screenBuffer.clear();
-        // screenBuffer.put(screen).flip();
-        // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
-        // GL_UNSIGNED_BYTE, screenBuffer);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+        glBindTexture(GL_TEXTURE_2D, textureId);
+        if (updated) {
+            screenBuffer.clear();
+            screenBuffer.put(screen).flip();
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,  GL_UNSIGNED_BYTE, screenBuffer);
+            updated = false;
+        }
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, 0);
     }
 }

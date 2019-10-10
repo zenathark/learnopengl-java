@@ -101,4 +101,8 @@ public class WindowGL {
         glfwPollEvents();
     }
 
+    public void swapBuffers() {
+        glfwSwapBuffers(window);
+    }
+
 }
